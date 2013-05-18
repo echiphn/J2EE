@@ -8,6 +8,7 @@ import java.util.logging.Logger;
 import javax.inject.Inject;
 import javax.naming.Context;
 import javax.naming.InitialContext;
+import javax.naming.NamingException;
 
 import org.cuong.intro.controller.MemberRegistration;
 import org.cuong.intro.controller.TestFacade;
@@ -19,15 +20,18 @@ import org.jboss.shrinkwrap.api.Archive;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.EmptyAsset;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 @RunWith(Arquillian.class)
 public class SessionBeansTest {
+    private static final String APPLICATION_NAME = "test";
+
     @Deployment
     public static Archive<?> createTestArchive() {
         return ShrinkWrap
-                .create(WebArchive.class, "test.war")
+                .create(WebArchive.class, APPLICATION_NAME + ".war")
                 .addClasses(Member.class, MemberRegistration.class, Resources.class,
                         TestFacade.class)
                 .addAsResource("META-INF/persistence.xml", "META-INF/persistence.xml")
@@ -59,18 +63,24 @@ public class SessionBeansTest {
         assertEquals(TestFacade.HELLO, testFacade.getHello());
     }
 
-    @Test
-    public void testLookUpBean() {
+    @Ignore
+    public void testApplicationLookUpBean() throws NamingException {
         Context context = null;
-        try {
-            context = new InitialContext();
-            TestFacade testFacade = (TestFacade) context.lookup("java:app/TestFacade");
-            assertNotNull(testFacade);
-            assertEquals(TestFacade.HELLO, testFacade.getHello());
+        context = new InitialContext();
+        TestFacade testFacade = (TestFacade) context.lookup("java:app/TestFacade");
+        assertNotNull(testFacade);
+        assertEquals(TestFacade.HELLO, testFacade.getHello());
+    }
 
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    @Test
+    public void testGlobalLookUpBean() throws NamingException {
+        Context context = null;
+        context = new InitialContext();
+        TestFacade testFacade = (TestFacade) context.lookup("java:global/" + APPLICATION_NAME
+                + "/TestFacade");
+        assertNotNull(testFacade);
+        assertEquals(TestFacade.HELLO, testFacade.getHello());
+
     }
 
 }
