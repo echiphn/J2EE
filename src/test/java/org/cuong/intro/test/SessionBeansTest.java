@@ -11,7 +11,8 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
 import org.cuong.intro.controller.MemberRegistration;
-import org.cuong.intro.controller.TestFacade;
+import org.cuong.intro.controller.TestBusinessFacade;
+import org.cuong.intro.controller.TestFacadeImpl;
 import org.cuong.intro.model.Member;
 import org.cuong.intro.util.Resources;
 import org.jboss.arquillian.container.test.api.Deployment;
@@ -20,7 +21,6 @@ import org.jboss.shrinkwrap.api.Archive;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.EmptyAsset;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -32,8 +32,11 @@ public class SessionBeansTest {
     public static Archive<?> createTestArchive() {
         return ShrinkWrap
                 .create(WebArchive.class, APPLICATION_NAME + ".war")
-                .addClasses(Member.class, MemberRegistration.class, Resources.class,
-                        TestFacade.class)
+                .addPackage("org.cuong.intro.controller")
+                .addClasses(Member.class, Resources.class)
+                // .addClasses(Member.class, MemberRegistration.class,
+                // Resources.class,
+                // TestFacadeImpl.class, TestBusinessFacade.class)
                 .addAsResource("META-INF/persistence.xml", "META-INF/persistence.xml")
                 .addAsWebInfResource(EmptyAsset.INSTANCE, "beans.xml");
     }
@@ -42,7 +45,7 @@ public class SessionBeansTest {
     MemberRegistration memberRegistration;
 
     @Inject
-    TestFacade testFacade;
+    TestBusinessFacade testFacade;
 
     @Inject
     Logger log;
@@ -60,26 +63,16 @@ public class SessionBeansTest {
 
     @Test
     public void testGetHello() {
-        assertEquals(TestFacade.HELLO, testFacade.getHello());
-    }
-
-    @Ignore
-    public void testApplicationLookUpBean() throws NamingException {
-        Context context = null;
-        context = new InitialContext();
-        TestFacade testFacade = (TestFacade) context.lookup("java:app/TestFacade");
-        assertNotNull(testFacade);
-        assertEquals(TestFacade.HELLO, testFacade.getHello());
+        assertEquals(TestFacadeImpl.HELLO, testFacade.getHello());
     }
 
     @Test
     public void testGlobalLookUpBean() throws NamingException {
-        Context context = null;
-        context = new InitialContext();
-        TestFacade testFacade = (TestFacade) context.lookup("java:global/" + APPLICATION_NAME
-                + "/TestFacade");
+        Context context = new InitialContext();
+        TestBusinessFacade testFacade = (TestBusinessFacade) context.lookup("java:global/"
+                + APPLICATION_NAME + "/testFacade");
         assertNotNull(testFacade);
-        assertEquals(TestFacade.HELLO, testFacade.getHello());
+        assertEquals(TestFacadeImpl.HELLO, testFacade.getHello());
 
     }
 

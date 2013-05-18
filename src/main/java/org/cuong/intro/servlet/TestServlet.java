@@ -10,7 +10,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.cuong.intro.controller.TestFacade;
+import org.cuong.intro.controller.TestBusinessFacade;
 
 @WebServlet(urlPatterns = "/TestServlet")
 public class TestServlet extends HttpServlet {
@@ -21,7 +21,7 @@ public class TestServlet extends HttpServlet {
     private static final long serialVersionUID = -6178400368679711823L;
 
     @EJB
-    private TestFacade testFacade;
+    private TestBusinessFacade testFacade;
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
