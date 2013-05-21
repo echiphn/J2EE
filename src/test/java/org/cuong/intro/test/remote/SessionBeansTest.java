@@ -19,8 +19,21 @@ public class SessionBeansTest {
 
     private static final String APPLICATION_NAME = "J2EESample";
 
+    private Hashtable jndiProps;
+
     @Before
     public void setUp() throws Exception {
+        jndiProps = new Hashtable();
+        jndiProps.put("java.naming.factory.initial",
+                "org.jboss.naming.remote.client.InitialContextFactory");
+        jndiProps.put(InitialContext.PROVIDER_URL, "remote://localhost:4447");
+        jndiProps.put("jboss.naming.client.ejb.context", true);
+
+        // needed for remote access - remember to run add-user.bat
+        jndiProps.put(Context.SECURITY_PRINCIPAL, "test");
+        jndiProps.put(Context.SECURITY_CREDENTIALS, "password");
+
+        jndiProps.put(Context.URL_PKG_PREFIXES, "org.jboss.ejb.client.naming");
     }
 
     @After
@@ -29,56 +42,21 @@ public class SessionBeansTest {
 
     @Test
     public void testClientAccess() throws NamingException {
-        // Properties clientProp = new Properties();
-        //
-        // clientProp.put("remote.connectionprovider.create.options.org.xnio.Options.SSL_ENABLED",
-        // "false");
-        //
-        // clientProp.put("remote.connections", "default");
-        //
-        // clientProp.put("remote.connection.default.port", "4447");
-        //
-        // clientProp.put("remote.connection.default.host", "localhost");
-        //
-        // clientProp.put("remote.connection.default.username", "ejbUser");
-        //
-        // clientProp.put("remote.connection.default.password", "ejbPassword");
-        //
-        // clientProp
-        // .put("remote.connection.default.connect.options.org.xnio.Options.SASL_POLICY_NOANONYMOUS",
-        // "false");
-        //
-        // EJBClientConfiguration cc = new
-        // PropertiesBasedEJBClientConfiguration(clientProp);
-        //
-        // ContextSelector<EJBClientContext> selector = new
-        // ConfigBasedEJBClientContextSelector(cc);
-        //
-        // EJBClientContext.setSelector(selector);
-        //
-        // Properties props = new Properties();
-        //
-        // props.put(Context.URL_PKG_PREFIXES, "org.jboss.ejb.client.naming");
-        // props.put(Context.INITIAL_CONTEXT_FACTORY,
-        // "org.jnp.interfaces.NamingContextFactory");
-        final Hashtable<Object, Object> jndiProperties = new Hashtable<Object, Object>();
-        jndiProperties.put(InitialContext.INITIAL_CONTEXT_FACTORY,
-                "org.jboss.naming.remote.client.InitialContextFactory");
-        jndiProperties.put(InitialContext.PROVIDER_URL, "remote://localhost:4447");
-        jndiProperties.put("jboss.naming.client.ejb.context", true);
-        final Context context = new InitialContext(jndiProperties);
-        // Context context = new InitialContext();
-        // context.addToEnvironment("java.naming.factory.initial",
-        // "org.jnp.interfaces.NamingContextFactory");
-        // context.addToEnvironment("java.naming.factory.url.pkgs",
-        // "org.jboss.naming:org.jnp.interfaces");
-        // context.addToEnvironment(Context.PROVIDER_URL,
-        // "jnp://localhost:1099");
-        // TestBusinessFacade testFacade = (TestBusinessFacade)
-        // context.lookup("java:global/"
-        // + APPLICATION_NAME + "/TestBusinessFacade");
-        TestBusinessFacade testFacade = (TestBusinessFacade) context
-                .lookup("ear/jar/TestBusinessFacade");
+        final Context context = new InitialContext(jndiProps);
+
+        TestBusinessFacade testFacade = (TestBusinessFacade) context.lookup("ejb:/"
+                + APPLICATION_NAME + "/testFacade!org.cuong.intro.controller.TestBusinessFacade");
+        assertNotNull(testFacade);
+        assertEquals(TestFacadeImpl.HELLO, testFacade.getHello());
+    }
+
+    @Test
+    public void testClientAccess_Testcase2() throws NamingException {
+        final Context context = new InitialContext(jndiProps);
+        // "ejb:/jboss-as-ejb-remote-app/CalculatorBean!org.jboss.as.quickstarts.ejb.remote.stateless.RemoteCalculator"
+
+        TestBusinessFacade testFacade = (TestBusinessFacade) context.lookup(APPLICATION_NAME
+                + "/testFacade!org.cuong.intro.controller.TestBusinessFacade");
         assertNotNull(testFacade);
         assertEquals(TestFacadeImpl.HELLO, testFacade.getHello());
     }
