@@ -11,7 +11,7 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
 import org.cuong.intro.controller.MemberRegistration;
-import org.cuong.intro.controller.TestBusinessFacade;
+import org.cuong.intro.controller.TestBusinessFacadeLocal;
 import org.cuong.intro.controller.TestFacadeImpl;
 import org.cuong.intro.model.Member;
 import org.cuong.intro.util.Resources;
@@ -30,14 +30,9 @@ public class SessionBeansTest {
 
     @Deployment
     public static Archive<?> createTestArchive() {
-        return ShrinkWrap
-                .create(WebArchive.class, APPLICATION_NAME + ".war")
-                .addPackage("org.cuong.intro.controller")
-                .addClasses(Member.class, Resources.class)
-                // .addClasses(Member.class, MemberRegistration.class,
-                // Resources.class,
-                // TestFacadeImpl.class, TestBusinessFacade.class)
-                .addAsResource("META-INF/persistence.xml", "META-INF/persistence.xml")
+        return ShrinkWrap.create(WebArchive.class, APPLICATION_NAME + ".war")
+                .addPackage("org.cuong.intro.controller").addClasses(Member.class, Resources.class)
+                .addAsResource("META-INF/persistence.xml")
                 .addAsWebInfResource(EmptyAsset.INSTANCE, "beans.xml");
     }
 
@@ -45,7 +40,7 @@ public class SessionBeansTest {
     MemberRegistration memberRegistration;
 
     @Inject
-    TestBusinessFacade testFacade;
+    TestBusinessFacadeLocal testFacade;
 
     @Inject
     Logger log;
@@ -69,8 +64,9 @@ public class SessionBeansTest {
     @Test
     public void testGlobalLookUpBean() throws NamingException {
         Context context = new InitialContext();
-        TestBusinessFacade testFacade = (TestBusinessFacade) context.lookup("java:global/"
-                + APPLICATION_NAME + "/testFacade");
+        TestBusinessFacadeLocal testFacade = (TestBusinessFacadeLocal) context
+                .lookup("java:global/" + APPLICATION_NAME
+                        + "/testFacade!org.cuong.intro.controller.TestBusinessFacadeLocal");
         assertNotNull(testFacade);
         assertEquals(TestFacadeImpl.HELLO, testFacade.getHello());
 
