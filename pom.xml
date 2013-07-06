@@ -23,7 +23,7 @@
 		<!-- Alternatively, comment out the above line, and un-comment the line 
 			below to use version 3.0.0.Beta1-redhat-1 which is a release certified to 
 			work with JBoss EAP 6. It requires you have access to the JBoss EAP 6 maven -->
-	  <jboss.home>/var/lib/jenkins/jbossServer/jboss</jboss.home>
+	  <!--<jboss.home>/var/lib/jenkins/jbossServer/jboss</jboss.home>-->
       <!--    <javaee6.web.spec.version>3.0.0.Beta1-redhat-1</javaee6.web.spec.version> 
 			repository. -->
 	</properties>
